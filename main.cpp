@@ -1,29 +1,89 @@
-#include <sstream>
-#include <vector>
-#include <iostream>
+#include <bits/stdc++.h>
+
 using namespace std;
 
-vector<int> parseInts(string str)
+//Define the structs Workshops and Available_Workshops.
+//Implement the functions initialize and CalculateMaxWorkshops
+
+struct Workshops
 {
-    stringstream ss(str);
-    string num_str;
-    vector<int> result;
-    while (getline(ss, num_str, ','))
+    int start_time;
+    int end_time;
+    int duration;
+};
+
+struct Available_Workshops
+{
+    vector<Workshops> workshops;
+};
+
+Available_Workshops *initialize(int start_time[], int duration[], int n)
+{
+    Available_Workshops *aw = new Available_Workshops();
+    for (int i = 0; i < n; i++)
     {
-        result.push_back(stoi(num_str));
+        aw->workshops.push_back(Workshops());
+        Workshops &w = aw->workshops[i];
+        w.start_time = start_time[i];
+        w.duration = duration[i];
+        w.end_time = w.start_time + w.duration;
+    }
+    return aw;
+};
+
+int max(int a, int b)
+{
+    if (a > b)
+        return a;
+    else
+        return b;
+}
+
+bool earlier(Workshops &a, Workshops &b)
+{
+    return a.start_time < b.start_time;
+}
+
+int search(vector<Workshops> &workshops, int start_index, int start_time)
+{
+    int result = 0;
+    for (; start_index < workshops.size(); start_index++)
+    {
+        Workshops &ws = workshops[start_index];
+        if (ws.start_time >= start_time)
+        {
+            int count = search(workshops, start_index + 1, ws.end_time);
+            result = max(count + 1, result);
+        }
     }
     return result;
 }
 
-int main()
+int CalculateMaxWorkshops(Available_Workshops *ptr)
 {
-    string str;
-    cin >> str;
-    vector<int> integers = parseInts(str);
-    for (int i = 0; i < integers.size(); i++)
+    sort(ptr->workshops.begin(), ptr->workshops.end(), earlier);
+    return search(ptr->workshops, 0, 0);
+};
+
+int main(int argc, char *argv[])
+{
+    int n; // number of workshops
+    cin >> n;
+    // create arrays of unknown size n
+    int *start_time = new int[n];
+    int *duration = new int[n];
+
+    for (int i = 0; i < n; i++)
     {
-        cout << integers[i] << "\n";
+        cin >> start_time[i];
+    }
+    for (int i = 0; i < n; i++)
+    {
+        cin >> duration[i];
     }
 
+    Available_Workshops *ptr;
+    ptr = initialize(start_time, duration, n);
+    cout << CalculateMaxWorkshops(ptr) << endl;
     return 0;
 }
