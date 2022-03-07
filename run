@@ -1,4 +1,6 @@
 #!/bin/bash
 
+set -e
+
 gcc main.cpp -lstdc++
-cat input | ./a.out
+time cat input | ./a.out
